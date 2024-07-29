@@ -20,7 +20,11 @@ Danny’s Diner is facing challenges in understanding customer behavior and need
 ![image](https://github.com/user-attachments/assets/d409b8ad-818a-4ed2-a051-39ed52375d73)
 
 ### 📒Case Study Questions & Solutions
-
-
-
-
+**1. What is the total amount each customer spent at the restaurant?**
+```
+SELECT
+    customer_id,
+    SUM(price) AS total_spent
+FROM sales s JOIN menu m ON s.product_id = m.product_id
+GROUP BY 1
+ORDER BY 1;```
