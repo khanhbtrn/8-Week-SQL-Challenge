@@ -6,7 +6,7 @@ Danny’s Diner is facing challenges in understanding customer behavior and need
 
 ### 🖋 Entity Relationship Diagram
 
-![image](https://github.com/user-attachments/assets/6d3920be-9636-46dd-907d-ef5b9486ece8)
+![image](https://github.com/user-attachments/assets/788c9c23-bc08-4e8b-aad1-d125bb759bd6)
 
 ### 📊 Example Datasets
 
@@ -23,13 +23,14 @@ Danny’s Diner is facing challenges in understanding customer behavior and need
 **1. What is the total amount each customer spent at the restaurant?**
 **Logic**
 Calculate the total spent by each customer by joining sales and menu tables and summing up the prices
-```
+```sql
 SELECT
     customer_id,
     SUM(price) AS total_spent
 FROM sales s JOIN menu m ON s.product_id = m.product_id
 GROUP BY 1
-ORDER BY 1;```
+ORDER BY 1;
+```
 **Output** 
 ![image](https://github.com/user-attachments/assets/3692f6d6-0fd1-4c09-85a4-1bef02dfa027)
 
