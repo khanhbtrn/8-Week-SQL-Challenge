@@ -34,3 +34,51 @@ ORDER BY 1;
 **Output** 
 ![image](https://github.com/user-attachments/assets/3692f6d6-0fd1-4c09-85a4-1bef02dfa027)
 
+**2. How many days has each customer visited the restaurant?**
+**Logic**
+Count the distinct order dates for each customer to get the number of visit days
+```sql
+SELECT 
+    customer_id,
+    COUNT(DISTINCT order_date) AS days_visited
+FROM sales
+GROUP BY 1;
+```
+**Output** 
+![image](https://github.com/user-attachments/assets/b8bbc100-5e95-4949-a199-2d8823777ca5)
+
+**3. What was the first item from the menu purchased by each customer?**
+**Logic**
+Use DENSE_RANK to rank order dates for each customer and select the first item
+```sql
+WITH first_item AS(
+    SELECT
+        customer_id,
+        order_date,
+        DENSE_RANK() OVER(PARTITION BY customer_id ORDER BY order_date ASC) AS order_of_item,
+        product_name
+    FROM sales s JOIN menu m ON s.product_id = m.product_id)
+
+SELECT
+    customer_id,
+    product_name
+FROM first_item
+WHERE order_of_item = 1;
+```
+**Output** 
+![image](https://github.com/user-attachments/assets/fa20ddc0-1aae-407c-8c7a-a42de088de4b)
+
+**4.What is the most purchased item on the menu and how many times was it purchased by all customers?**
+**Logic**
+Count the number of times each product is purchased and order by the count in descending order, limit to 1
+```sql
+SELECT
+    product_name,
+    COUNT(s.product_id) AS units_sold
+FROM sales s JOIN menu m ON s.product_id = m.product_id
+GROUP BY 1 
+ORDER BY COUNT(s.product_id) DESC
+LIMIT 1;
+```
+**Output** 
+![image](https://github.com/user-attachments/assets/46cb5021-1825-4e64-8830-78938269087e)
