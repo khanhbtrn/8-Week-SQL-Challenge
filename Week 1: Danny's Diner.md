@@ -21,6 +21,8 @@ Danny’s Diner is facing challenges in understanding customer behavior and need
 
 ### 📒Case Study Questions & Solutions
 **1. What is the total amount each customer spent at the restaurant?**
+**Logic**
+Calculate the total spent by each customer by joining sales and menu tables and summing up the prices
 ```
 SELECT
     customer_id,
@@ -28,3 +30,6 @@ SELECT
 FROM sales s JOIN menu m ON s.product_id = m.product_id
 GROUP BY 1
 ORDER BY 1;```
+**Output** 
+![image](https://github.com/user-attachments/assets/3692f6d6-0fd1-4c09-85a4-1bef02dfa027)
+
