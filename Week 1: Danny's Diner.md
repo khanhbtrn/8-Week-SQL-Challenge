@@ -6,9 +6,12 @@ Danny’s Diner is facing challenges in understanding customer behavior and need
 
 ### 🖋 Entity Relationship Diagram
 
-![image](https://github.com/user-attachments/assets/3e0360df-9817-4e5a-ba28-5408ddb5a3c2)
+![image](https://github.com/user-attachments/assets/6d3920be-9636-46dd-907d-ef5b9486ece8)
 
 ### 📊 Example Datasets
+
+#### Table 1: sales
+![image](https://github.com/user-attachments/assets/5db7d811-a67a-4500-bc51-0e0de63916b8)
 
 
 
