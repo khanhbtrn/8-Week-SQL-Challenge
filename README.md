@@ -1,8 +1,8 @@
-# 8-Week-SQL-Challenge
+## 8-Week-SQL-Challenge
 
 This repository contains my solutions to the 8-Week-SQL-Challenge from [Data With Danny](https://8weeksqlchallenge.com/). This challenge showcases my SQL skills by working through real-world problems. Each week, a new challenge is introduced, focusing on a different dataset and business problem.
 
-## 🔖 Table of Contents
+### :pushpin:Table of Contents
 [Week 1: Danny's Diner](https://8weeksqlchallenge.com/case-study-1/) / Solution
 <br> [Week 2: Pizza Runner](https://8weeksqlchallenge.com/case-study-2/) / Solution
 <br> [Week 3: Foodie-Fi](https://8weeksqlchallenge.com/case-study-3/) / Solution
