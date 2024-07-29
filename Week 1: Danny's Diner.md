@@ -13,7 +13,11 @@ Danny’s Diner is facing challenges in understanding customer behavior and need
 #### Table 1: sales
 ![image](https://github.com/user-attachments/assets/5db7d811-a67a-4500-bc51-0e0de63916b8)
 
+#### Table 2: menu
+![image](https://github.com/user-attachments/assets/f9403095-32a0-408c-858d-06ebca7777ce)
 
+#### Table 3: members
+![image](https://github.com/user-attachments/assets/d409b8ad-818a-4ed2-a051-39ed52375d73)
 
 
 
