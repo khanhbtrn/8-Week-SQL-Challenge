@@ -19,6 +19,8 @@ Danny’s Diner is facing challenges in understanding customer behavior and need
 #### Table 3: members
 ![image](https://github.com/user-attachments/assets/d409b8ad-818a-4ed2-a051-39ed52375d73)
 
+### 📒Case Study Questions & Solutions
+
 
 
 
