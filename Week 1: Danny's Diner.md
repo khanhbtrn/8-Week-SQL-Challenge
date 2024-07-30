@@ -74,7 +74,7 @@ WHERE order_of_item = 1;
 
 **4.What is the most purchased item on the menu and how many times was it purchased by all customers?**
 <br> **Logic:**
-Count the number of times each product is purchased and order by the count in descending order, limit to 1
+<br> Count the number of times each product is purchased and order by the count in descending order, limit to 1
 ```sql
 SELECT
     product_name,
@@ -87,4 +87,73 @@ LIMIT 1;
 **Output:** 
 <br> ![image](https://github.com/user-attachments/assets/46cb5021-1825-4e64-8830-78938269087e)
 
+
+**5. Which item was the most popular for each customer?**
+<br> **Logic:**
+<br> Find the most ordered item for each customer by counting orders and ranking them
+```sql
+WITH popular_item AS(SELECT
+    customer_id,
+    product_name,
+    COUNT(order_date) AS nb_of_orders,
+    DENSE_RANK() OVER(PARTITION BY customer_id ORDER BY COUNT(order_date) DESC) AS rnk
+FROM sales s LEFT JOIN menu m ON s.product_id = m.product_id
+GROUP BY 1,2)
+
+SELECT
+    customer_id,
+    product_name AS most_popular_items
+FROM popular_item
+WHERE rnk = 1;
+```
+**Output:** 
+<br> ![image](https://github.com/user-attachments/assets/4127dd84-412f-4347-a07c-11987702f392)
+
+
+**6. Which item was purchased first by the customer after they became a member?**
+<br> **Logic:**
+<br> To identify the first item purchased by each customer after they became a member, we need to consider only the order dates that are later than the join date (order_date > join_date). Since a customer may have multiple orders after their join date, we can use the ROW_NUMBER() window function to rank these orders and select the first one
+```sql
+WITH order_time AS(SELECT
+    s.customer_id,
+    m.product_name,
+    s.order_date,
+    ROW_NUMBER() OVER(PARTITION BY s.customer_id ORDER BY s.order_date ASC) AS rnk
+FROM sales s 
+    JOIN menu m ON s.product_id = m.product_id
+    JOIN members mem ON s.customer_id = mem.customer_id
+    AND S.order_date > mem.join_date)
+
+SELECT
+    customer_id,
+    product_name
+FROM order_time
+WHERE rnk = 1;
+```
+**Output:** 
+<br>![image](https://github.com/user-attachments/assets/66a7d20f-d4d5-479d-85a7-e46b2d8f6421)
+
+
+**7. Which item was purchased just before the customer became a member?**
+<br> **Logic:**
+<br> Retrieve the last item purchased before the join date using ROW_NUMBER to rank order dates in descending order
+```sql
+WITH order_time AS(SELECT
+    s.customer_id,
+    m.product_name,
+    s.order_date,
+    ROW_NUMBER() OVER(PARTITION BY s.customer_id ORDER BY s.order_date ASC) AS rnk
+FROM sales s 
+    JOIN menu m ON s.product_id = m.product_id
+    JOIN members mem ON s.customer_id = mem.customer_id
+    AND S.order_date > mem.join_date)
+
+SELECT
+    customer_id,
+    product_name
+FROM order_time
+WHERE rnk = 1;
+```
+**Output:** 
+<br>![image](https://github.com/user-attachments/assets/7f42a5d5-da63-4e1e-8232-fb911421e4ab)
 
