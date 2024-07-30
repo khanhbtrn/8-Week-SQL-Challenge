@@ -1,4 +1,4 @@
-## 📍Week 1: Danny's Diner
+## 🍜Week 1: Danny's Diner
 
 ### 🔎 Business Problem
 
