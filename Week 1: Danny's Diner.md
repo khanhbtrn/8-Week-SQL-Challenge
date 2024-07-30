@@ -32,7 +32,6 @@ GROUP BY 1
 ORDER BY 1;
 ```
 **Output:** 
-
 <br> ![image](https://github.com/user-attachments/assets/3692f6d6-0fd1-4c09-85a4-1bef02dfa027)
 
 
@@ -200,3 +199,36 @@ GROUP BY 1;
 **Output:** 
 <br>![image](https://github.com/user-attachments/assets/8ee7d737-ba6d-4b72-a800-54c800c0ec72)
 
+
+**10. In the first week after a customer joins the program (including their join date) they earn 2x points on all items, not just sushi - how many points do customer A and B have at the end of January?**
+<br> **Logic:**
+<br>We need to calculate the total points for customers A and B by the end of January. This includes:
+<br> * Base Points: Points earned from their purchases normally, without considering the loyalty system. Each dollar spent equals 10 points, and sushi purchases have a 2x multiplier.
+<br> * First Week Loyalty Points: Additional points earned during the first week after they join the loyalty program, where all items earn 2x points, not just sushi.
+```sql
+WITH valid_dates AS(
+	SELECT
+		customer_id,
+		join_date,
+		join_date + 6 AS valid_date,
+		DATE_TRUNC('month', '2021-01-31'::DATE) + INTERVAL '1 month' - INTERVAL '1 day' AS last_date -- This is to identify the last day of the month of the given date, which is January 31, 2021
+	FROM members 
+		)
+		
+SELECT 
+	s.customer_id,
+	SUM(CASE
+			WHEN s.order_date BETWEEN vd.join_date AND vd.valid_date THEN m.price*20
+			WHEN m.product_name = 'sushi' THEN m.price*20
+			ELSE m.price*10
+		END) AS points
+FROM sales s 
+	JOIN valid_dates AS vd ON s.customer_id = vd.customer_id 
+		AND vd.join_date <= s.order_date 
+		AND s.order_date <= vd.last_date
+	JOIN menu m ON s.product_id = m.product_id
+GROUP BY 1
+ORDER BY 1;
+```
+**Output:** 
+<br>![image](https://github.com/user-attachments/assets/8c78520f-5c34-4845-bc48-d473640e0e94)
