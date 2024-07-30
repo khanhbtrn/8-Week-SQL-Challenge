@@ -72,7 +72,7 @@ WHERE order_of_item = 1;
 <br> ![image](https://github.com/user-attachments/assets/fa20ddc0-1aae-407c-8c7a-a42de088de4b)
 
 
-**4.What is the most purchased item on the menu and how many times was it purchased by all customers?**
+**4. What is the most purchased item on the menu and how many times was it purchased by all customers?**
 <br> **Logic:**
 <br> Count the number of times each product is purchased and order by the count in descending order, limit to 1
 ```sql
@@ -156,4 +156,46 @@ WHERE rnk = 1;
 ```
 **Output:** 
 <br>![image](https://github.com/user-attachments/assets/7f42a5d5-da63-4e1e-8232-fb911421e4ab)
+
+
+**8. What is the total items and amount spent for each member before they became a member?**
+<br> **Logic:**
+<br> Sum the price and count the items ordered before the join date for each member
+```sql
+SELECT
+    mem.customer_id,
+    COUNT(s.product_id) AS total_items,
+    SUM(price) AS amount_spent
+FROM sales s 
+    JOIN menu m ON s.product_id = m.product_id
+    JOIN members mem ON s.customer_id = mem.customer_id
+    AND order_date < join_date
+GROUP BY 1
+ORDER BY 1;
+```
+**Output:** 
+<br>![image](https://github.com/user-attachments/assets/071941c3-f314-40ca-b5d3-18ca60023f52)
+
+
+**9. If each $1 spent equates to 10 points and sushi has a 2x points multiplier how many points would each customer have?**
+<br> **Logic:**
+<br> Calculate points for each order considering sushi has a 2x multiplier
+```sql
+WITH points_system AS(SELECT
+    s.customer_id,
+    s.product_id,
+    m.product_name,
+    CASE WHEN product_name = 'sushi' THEN price*20
+    ELSE price*10 END AS points
+FROM sales s 
+    JOIN menu m ON s.product_id = m.product_id)
+
+SELECT
+    customer_id,
+    SUM(points) AS total_points
+FROM points_system
+GROUP BY 1;
+```
+**Output:** 
+<br>![image](https://github.com/user-attachments/assets/8ee7d737-ba6d-4b72-a800-54c800c0ec72)
 
