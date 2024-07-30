@@ -33,7 +33,7 @@ ORDER BY 1;
 ```
 **Output:** 
 <br> ![image](https://github.com/user-attachments/assets/3692f6d6-0fd1-4c09-85a4-1bef02dfa027)
-
+<br> 
 **2. How many days has each customer visited the restaurant?**
 <br> **Logic:**
 <br> Count the distinct order dates for each customer to get the number of visit days
@@ -46,9 +46,8 @@ GROUP BY 1;
 ```
 **Output:** 
 <br> ![image](https://github.com/user-attachments/assets/b8bbc100-5e95-4949-a199-2d8823777ca5)
-
+<br> 
 **3. What was the first item from the menu purchased by each customer?**
-
 <br> **Logic:**
 <br> Use DENSE_RANK to rank order dates for each customer and select the first item
 ```sql
@@ -68,9 +67,8 @@ WHERE order_of_item = 1;
 ```
 **Output:** 
 <br> ![image](https://github.com/user-attachments/assets/fa20ddc0-1aae-407c-8c7a-a42de088de4b)
-
+<br> 
 **4.What is the most purchased item on the menu and how many times was it purchased by all customers?**
-
 <br> **Logic:**
 Count the number of times each product is purchased and order by the count in descending order, limit to 1
 ```sql
@@ -84,3 +82,4 @@ LIMIT 1;
 ```
 **Output:** 
 ![image](https://github.com/user-attachments/assets/46cb5021-1825-4e64-8830-78938269087e)
+<br> 
