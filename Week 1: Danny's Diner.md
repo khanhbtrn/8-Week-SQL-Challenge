@@ -32,6 +32,7 @@ GROUP BY 1
 ORDER BY 1;
 ```
 **Output:** 
+
 <br> ![image](https://github.com/user-attachments/assets/3692f6d6-0fd1-4c09-85a4-1bef02dfa027)
 
 
