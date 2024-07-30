@@ -21,7 +21,6 @@ Danny’s Diner is facing challenges in understanding customer behavior and need
 
 ### 📒Case Study Questions & Solutions
 **1. What is the total amount each customer spent at the restaurant?**
-
 <br> **Logic:**
 <br> Calculate the total spent by each customer by joining sales and menu tables and summing up the prices
 ```sql
@@ -36,7 +35,6 @@ ORDER BY 1;
 <br> ![image](https://github.com/user-attachments/assets/3692f6d6-0fd1-4c09-85a4-1bef02dfa027)
 
 **2. How many days has each customer visited the restaurant?**
-
 <br> **Logic:**
 <br> Count the distinct order dates for each customer to get the number of visit days
 ```sql
