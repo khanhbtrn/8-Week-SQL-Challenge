@@ -47,7 +47,9 @@ GROUP BY 1;
 ```
 **Output:** 
 <br> ![image](https://github.com/user-attachments/assets/b8bbc100-5e95-4949-a199-2d8823777ca5)
-<br> 
+
+
+
 **3. What was the first item from the menu purchased by each customer?**
 <br> **Logic:**
 <br> Use DENSE_RANK to rank order dates for each customer and select the first item
@@ -68,7 +70,8 @@ WHERE order_of_item = 1;
 ```
 **Output:** 
 <br> ![image](https://github.com/user-attachments/assets/fa20ddc0-1aae-407c-8c7a-a42de088de4b)
-<br> 
+
+
 **4.What is the most purchased item on the menu and how many times was it purchased by all customers?**
 <br> **Logic:**
 Count the number of times each product is purchased and order by the count in descending order, limit to 1
@@ -82,5 +85,6 @@ ORDER BY COUNT(s.product_id) DESC
 LIMIT 1;
 ```
 **Output:** 
-![image](https://github.com/user-attachments/assets/46cb5021-1825-4e64-8830-78938269087e)
-<br> 
+<br> ![image](https://github.com/user-attachments/assets/46cb5021-1825-4e64-8830-78938269087e)
+
+
