@@ -21,6 +21,7 @@ Danny’s Diner is facing challenges in understanding customer behavior and need
 
 ### 📒Case Study Questions & Solutions
 <br> **1. What is the total amount each customer spent at the restaurant?**
+
 <br> **Logic**
 <br> Calculate the total spent by each customer by joining sales and menu tables and summing up the prices
 ```sql
