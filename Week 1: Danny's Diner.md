@@ -33,7 +33,8 @@ ORDER BY 1;
 ```
 **Output:** 
 <br> ![image](https://github.com/user-attachments/assets/3692f6d6-0fd1-4c09-85a4-1bef02dfa027)
-<br> 
+
+
 **2. How many days has each customer visited the restaurant?**
 <br> **Logic:**
 <br> Count the distinct order dates for each customer to get the number of visit days
