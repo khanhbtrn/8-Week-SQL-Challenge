@@ -20,8 +20,8 @@ Danny’s Diner is facing challenges in understanding customer behavior and need
 ![image](https://github.com/user-attachments/assets/d409b8ad-818a-4ed2-a051-39ed52375d73)
 
 ### 📒Case Study Questions & Solutions
-**1. What is the total amount each customer spent at the restaurant?**
-**Logic**
+<br> **1. What is the total amount each customer spent at the restaurant?**
+<br> **Logic**
 Calculate the total spent by each customer by joining sales and menu tables and summing up the prices
 ```sql
 SELECT
@@ -32,7 +32,7 @@ GROUP BY 1
 ORDER BY 1;
 ```
 **Output** 
-![image](https://github.com/user-attachments/assets/3692f6d6-0fd1-4c09-85a4-1bef02dfa027)
+<br> ![image](https://github.com/user-attachments/assets/3692f6d6-0fd1-4c09-85a4-1bef02dfa027)
 
 **2. How many days has each customer visited the restaurant?**
 **Logic**
