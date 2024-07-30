@@ -22,7 +22,7 @@ Danny’s Diner is facing challenges in understanding customer behavior and need
 ### 📒Case Study Questions & Solutions
 <br> **1. What is the total amount each customer spent at the restaurant?**
 <br> **Logic**
-Calculate the total spent by each customer by joining sales and menu tables and summing up the prices
+<br> Calculate the total spent by each customer by joining sales and menu tables and summing up the prices
 ```sql
 SELECT
     customer_id,
@@ -35,8 +35,8 @@ ORDER BY 1;
 <br> ![image](https://github.com/user-attachments/assets/3692f6d6-0fd1-4c09-85a4-1bef02dfa027)
 
 **2. How many days has each customer visited the restaurant?**
-**Logic**
-Count the distinct order dates for each customer to get the number of visit days
+<br> **Logic**
+<br> Count the distinct order dates for each customer to get the number of visit days
 ```sql
 SELECT 
     customer_id,
@@ -45,11 +45,11 @@ FROM sales
 GROUP BY 1;
 ```
 **Output** 
-![image](https://github.com/user-attachments/assets/b8bbc100-5e95-4949-a199-2d8823777ca5)
+<br> ![image](https://github.com/user-attachments/assets/b8bbc100-5e95-4949-a199-2d8823777ca5)
 
 **3. What was the first item from the menu purchased by each customer?**
-**Logic**
-Use DENSE_RANK to rank order dates for each customer and select the first item
+<br> **Logic**
+<br> Use DENSE_RANK to rank order dates for each customer and select the first item
 ```sql
 WITH first_item AS(
     SELECT
@@ -66,7 +66,7 @@ FROM first_item
 WHERE order_of_item = 1;
 ```
 **Output** 
-![image](https://github.com/user-attachments/assets/fa20ddc0-1aae-407c-8c7a-a42de088de4b)
+<br> ![image](https://github.com/user-attachments/assets/fa20ddc0-1aae-407c-8c7a-a42de088de4b)
 
 **4.What is the most purchased item on the menu and how many times was it purchased by all customers?**
 **Logic**
