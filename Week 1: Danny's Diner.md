@@ -53,7 +53,7 @@ GROUP BY 1;
 
 ##### 3. What was the first item from the menu purchased by each customer?
 **Logic:**
-<br> Use DENSE_RANK to rank order dates for each customer and select the first item
+<br> Use `DENSE_RANK` to rank order dates for each customer and select the first item
 ```sql
 WITH first_item AS(
     SELECT
@@ -116,7 +116,7 @@ WHERE rnk = 1;
 
 ##### 6. Which item was purchased first by the customer after they became a member?
 **Logic:**
-<br> To identify the first item purchased by each customer after they became a member, we need to consider only the order dates that are later than the join date (order_date > join_date). Since a customer may have multiple orders after their join date, we can use the ROW_NUMBER() window function to rank these orders and select the first one
+<br> To identify the first item purchased by each customer after they became a member, we need to consider only the order dates that are later than the join date (`order_date` > `join_date`). Since a customer may have multiple orders after their join date, we can use the `ROW_NUMBER()` window function to rank these orders and select the first one
 ```sql
 WITH order_time AS(SELECT
     s.customer_id,
@@ -141,7 +141,7 @@ WHERE rnk = 1;
 
 ##### 7. Which item was purchased just before the customer became a member?
 **Logic:**
-<br> Retrieve the last item purchased before the join date using ROW_NUMBER to rank order dates in descending order
+<br> Retrieve the last item purchased before the join date using `ROW_NUMBER` to rank order dates in descending order
 ```sql
 WITH order_time AS(SELECT
     s.customer_id,
@@ -244,9 +244,9 @@ ORDER BY 1;
 
 
 
-##### Bonus Question 1. Recreate a table with the following columns: customer_id, order_date, product_name, price, and member(Y/N) so that Danny and his team can use to quickly derive insights without needing to join the underlying tables using SQL
+##### Bonus Question 1. Recreate a table with the following columns: `customer_id`, `order_date`, `product_name`, `price`, and `member(Y/N)` so that Danny and his team can use to quickly derive insights without needing to join the underlying tables using SQL
 **Logic:**
-<br> The Member column is marked as "Y" when the order_date is on or after the join_date. We use a LEFT JOIN between the sales and members tables to include all customers, including customer C, who may not be a member
+<br> The `Member` column is marked as "Y" when the `order_date` is on or after the `join_date`. We use a `LEFT JOIN` between the sales and members tables to include all customers, including customer C, who may not be a member
 ```sql
 SELECT
 	s.customer_id,
@@ -269,7 +269,7 @@ ORDER BY 1,2;
 
 ##### Bonus Question 2. Rank All The Things. Danny also requires further information about the ranking of customer products, but he purposely does not need the ranking for non-member purchases so he expects null ranking values for the records when customers are not yet part of the loyalty program.
 **Logic:**
-<br> Based on the table above, we first need to fill in the ranking column, assigning NULL values to customers who are not members. The key aspect of using the RANK() function is to PARTITION BY customer_id to ensure that the ranking is calculated separately for each customer. We need to also include the membership status in the partitioning to distinguish between members and non-members, which is to ensure that the ranking only counts the orders of members. The ordering should be done by order_date as required.
+<br> Based on the table above, we first need to fill in the ranking column, assigning NULL values to customers who are not members. The key aspect of using the `RANK()` function is to PARTITION BY `customer_id` to ensure that the ranking is calculated separately for each customer. We need to also include the membership status in the partitioning to distinguish between members and non-members, which is to ensure that the ranking only counts the orders of members. The ordering should be done by `order_date` as required.
 ```sql
 WITH new_cte AS(
 	SELECT
