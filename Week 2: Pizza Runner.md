@@ -78,6 +78,13 @@ SET pickup_time = CASE
     				ELSE cancellation
     		END;
 ```
+ - We also need to standardize the data types:
+```sql
+ALTER TABLE pizza_runner.runner_orders
+ALTER COLUMN pickup_time TYPE TIMESTAMP USING NULLIF(pickup_time, '')::timestamp,
+ALTER COLUMN distance TYPE REAL USING NULLIF(distance, '')::real,
+ALTER COLUMN duration TYPE INTEGER USING NULLIF(duration, '')::integer;
+```
 **Output**
 <br>![image](https://github.com/user-attachments/assets/5d313ea4-34dd-4851-aad5-0d5d0a25614f)
 
@@ -267,3 +274,117 @@ ORDER BY 1;
 ```
 **Output:** 
 <br> ![image](https://github.com/user-attachments/assets/f7073c58-c6b2-4881-ab70-5d3b3ae6af75)
+
+### B. Runner and Customer Experience
+##### 1. How many runners signed up for each 1 week period? (i.e. week starts `2021-01-01`)
+**Logic:**
+ - Use `DATE_TRUNC` to truncates the `registration_date` to the start of the week and casts it to a date type.
+```sql
+SELECT
+	DATE_TRUNC('week', registration_date) AS week_start,
+	COUNT(runner_id) AS nb_runners
+FROM pizza_runner.runners
+GROUP BY 1
+ORDER BY 1;
+```
+**Output:** 
+<br> ![image](https://github.com/user-attachments/assets/14c6709d-1544-4669-b4a7-421df34373b6)
+
+
+
+##### 2. What was the average time in minutes it took for each runner to arrive at the Pizza Runner HQ to pick up the order?
+**Logic:**
+ - The time it took for each runner to arrive at the HQ to pick up the order equals `pickup_time` - `order_time`.
+ - We will first need to create a CTE of pickup time in minutes for each order and that order was taken by what runner, then we calculate the average value.
+
+```sql
+WITH time_table AS(
+	SELECT
+		co.order_id,
+		ro.runner_id,
+		co.order_time,
+		ro.pickup_time,
+	    AVG(EXTRACT(EPOCH FROM (ro.pickup_time - co.order_time)) / 60) AS pickup_minutes
+	FROM pizza_runner.customer_orders co 
+		JOIN pizza_runner.runner_orders ro ON co.order_id = ro.order_id
+	WHERE co.order_time IS NOT NULL 
+		AND cancellation LIKE ''
+	GROUP BY 1,2,3,4
+)
+
+SELECT 
+	runner_id,
+	AVG(pickup_minutes) AS avg_pickup_minutes
+FROM time_table
+GROUP BY 1;
+```
+**Output:** 
+<br> ![image](https://github.com/user-attachments/assets/502b78bb-5fe8-4569-9673-f420087ce393)
+
+
+
+##### 3. Is there any relationship between the number of pizzas and how long the order takes to prepare?
+**Logic:**
+ - To determine whether there is a relationship between the number of pizzas and how long the order takes to prepare, we need to calculate the time it took for each order to prepare, which is the difference between `order_time` and `pickup_time`, assumming that the pizzas were ready to be delivered once the runner came to pick them up.
+ - We also need to count the number of pizzas ordered for each order. 
+```sql
+WITH prep_time AS(
+	SELECT 
+		co.order_id,
+		COUNT(pizza_id) AS nb_pizza,
+		co.order_time,
+		ro.pickup_time,
+		EXTRACT(EPOCH FROM (ro.pickup_time - co.order_time)) / 60 AS pickup_minutes
+	FROM pizza_runner.customer_orders co 
+			JOIN pizza_runner.runner_orders ro ON co.order_id = ro.order_id
+		WHERE co.order_time IS NOT NULL 
+			AND cancellation LIKE ''
+		GROUP BY 1,3,4
+	)
+
+SELECT 
+	nb_pizza,
+	AVG(pickup_minutes) AS avg_prep_time
+FROM prep_time
+GROUP BY 1
+ORDER BY 1;
+```
+**Output:** 
+<br> ![image](https://github.com/user-attachments/assets/f8896254-b614-4b26-870a-ce667f25d51f)
+ - On average, it takes approximately 12 minutes to prepare one pizza, 18 minutes to prepare two pizzas, and 29 minutes to prepare three pizzas. This implies that preparing two pizzas in one order takes only 9 minutes per pizza, showcasing the highest efficiency rate when making two pizzas in a single order.
+
+
+
+##### 4. What was the average distance travelled for each customer?
+**Logic:**
+ - This is a quite straightforward question, assumming that the distance travelled is calculated from HQ to customer's place.
+```sql
+SELECT 
+	co.customer_id,
+	AVG(ro.distance) AS avg_distance
+FROM pizza_runner.customer_orders co 
+	JOIN pizza_runner.runner_orders ro ON co.order_id = ro.order_id
+WHERE cancellation LIKE ''
+GROUP BY 1
+ORDER BY 1;
+```
+**Output:** 
+<br> ![image](https://github.com/user-attachments/assets/0617a9da-c598-475a-bf65-95cbbd42316f)
+
+
+
+##### 4. What was the average distance travelled for each customer?
+**Logic:**
+ - This is a quite straightforward question, assumming that the distance travelled is calculated from HQ to customer's place.
+```sql
+SELECT 
+	co.customer_id,
+	AVG(ro.distance) AS avg_distance
+FROM pizza_runner.customer_orders co 
+	JOIN pizza_runner.runner_orders ro ON co.order_id = ro.order_id
+WHERE cancellation LIKE ''
+GROUP BY 1
+ORDER BY 1;
+```
+**Output:** 
+<br> ![image](https://github.com/user-attachments/assets/0617a9da-c598-475a-bf65-95cbbd42316f)
