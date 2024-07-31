@@ -21,8 +21,8 @@ Danny’s Diner is facing challenges in understanding customer behavior and need
 
 ### 📒Case Study Questions & Solutions
 ##### 1. What is the total amount each customer spent at the restaurant?
-**Logic**
-<br> Calculate the total spent by each customer by joining sales and menu tables and summing up the prices
+**Logic:**
+ - Calculate the total spent by each customer by joining sales and menu tables and summing up the prices.
 ```sql
 SELECT
     customer_id,
@@ -38,7 +38,7 @@ ORDER BY 1;
 
 ##### 2. How many days has each customer visited the restaurant?
 **Logic:**
-<br> Count the distinct order dates for each customer to get the number of visit days
+ - Count the distinct order dates for each customer to get the number of visit days.
 ```sql
 SELECT 
     customer_id,
@@ -53,7 +53,7 @@ GROUP BY 1;
 
 ##### 3. What was the first item from the menu purchased by each customer?
 **Logic:**
-<br> Use `DENSE_RANK` to rank order dates for each customer and select the first item
+ - Use `DENSE_RANK` to rank order dates for each customer and select the first item.
 ```sql
 WITH first_item AS(
     SELECT
@@ -76,7 +76,7 @@ WHERE order_of_item = 1;
 
 ##### 4. What is the most purchased item on the menu and how many times was it purchased by all customers?
 **Logic:**
-<br> Count the number of times each product is purchased and order by the count in descending order, limit to 1
+ - Count the number of times each product is purchased and order by the count in descending order, limit to 1.
 ```sql
 SELECT
     product_name,
@@ -93,7 +93,7 @@ LIMIT 1;
 
 ##### 5. Which item was the most popular for each customer?
 **Logic:**
-<br> Find the most ordered item for each customer by counting orders and ranking them
+ - Find the most ordered item for each customer by counting orders and ranking them.
 ```sql
 WITH popular_item AS(SELECT
     customer_id,
@@ -116,7 +116,7 @@ WHERE rnk = 1;
 
 ##### 6. Which item was purchased first by the customer after they became a member?
 **Logic:**
-<br> To identify the first item purchased by each customer after they became a member, we need to consider only the order dates that are later than the join date (`order_date` > `join_date`). Since a customer may have multiple orders after their join date, we can use the `ROW_NUMBER()` window function to rank these orders and select the first one
+ - To identify the first item purchased by each customer after they became a member, we need to consider only the order dates that are later than the join date (`order_date` > `join_date`). Since a customer may have multiple orders after their join date, we can use the `ROW_NUMBER()` window function to rank these orders and select the first one.
 ```sql
 WITH order_time AS(SELECT
     s.customer_id,
@@ -141,7 +141,7 @@ WHERE rnk = 1;
 
 ##### 7. Which item was purchased just before the customer became a member?
 **Logic:**
-<br> Retrieve the last item purchased before the join date using `ROW_NUMBER` to rank order dates in descending order
+ - Retrieve the last item purchased before the join date using `ROW_NUMBER` to rank order dates in descending order.
 ```sql
 WITH order_time AS(SELECT
     s.customer_id,
@@ -166,7 +166,7 @@ WHERE rnk = 1;
 
 ##### 8. What is the total items and amount spent for each member before they became a member?
 **Logic:**
-<br> Sum the price and count the items ordered before the join date for each member
+ - Sum the price and count the items ordered before the join date for each member.
 ```sql
 SELECT
     mem.customer_id,
@@ -185,8 +185,8 @@ ORDER BY 1;
 
 
 ##### 9. If each $1 spent equates to 10 points and sushi has a 2x points multiplier how many points would each customer have?
-<br> **Logic:**
-<br> Calculate points for each order considering sushi has a 2x multiplier
+**Logic:**
+ -  Calculate points for each order considering sushi has a 2x multiplier.
 ```sql
 WITH points_system AS(SELECT
     s.customer_id,
@@ -210,10 +210,10 @@ GROUP BY 1;
 
 ##### 10. In the first week after a customer joins the program (including their join date) they earn 2x points on all items, not just sushi - how many points do customer A and B have at the end of January?
 **Logic:**
-<br> We need to calculate the total points for customers A and B by the end of January. 
-<br> This includes:
-<br> • Base Points: Points earned from their purchases normally, without considering the loyalty system. Each dollar spent equals 10 points, and sushi purchases have a 2x multiplier.
-<br> • First Week Loyalty Points: Additional points earned during the first week after they join the loyalty program, where all items earn 2x points, not just sushi.**
+ - We need to calculate the total points for customers A and B by the end of January.
+ - This includes:
+	 - Base Points: Points earned from their purchases normally, without considering the loyalty system. Each dollar spent equals 10 points, and sushi purchases have a 2x multiplier.
+	 - First Week Loyalty Points: Additional points earned during the first week after they join the loyalty program, where all items earn 2x points, not just sushi.
 ```sql
 WITH valid_dates AS(
 	SELECT
@@ -246,7 +246,7 @@ ORDER BY 1;
 
 ##### Bonus Question 1. Recreate a table with the following columns: `customer_id`, `order_date`, `product_name`, `price`, and `member(Y/N)` so that Danny and his team can use to quickly derive insights without needing to join the underlying tables using SQL
 **Logic:**
-<br> The `Member` column is marked as "Y" when the `order_date` is on or after the `join_date`. We use a `LEFT JOIN` between the sales and members tables to include all customers, including customer C, who may not be a member
+ - The `Member` column is marked as "Y" when the `order_date` is on or after the `join_date`. We use a `LEFT JOIN` between the sales and members tables to include all customers, including customer C, who may not be a member
 ```sql
 SELECT
 	s.customer_id,
@@ -269,7 +269,10 @@ ORDER BY 1,2;
 
 ##### Bonus Question 2. Rank All The Things. Danny also requires further information about the ranking of customer products, but he purposely does not need the ranking for non-member purchases so he expects null ranking values for the records when customers are not yet part of the loyalty program.
 **Logic:**
-<br> Based on the table above, we first need to fill in the ranking column, assigning NULL values to customers who are not members. The key aspect of using the `RANK()` function is to PARTITION BY `customer_id` to ensure that the ranking is calculated separately for each customer. We need to also include the membership status in the partitioning to distinguish between members and non-members, which is to ensure that the ranking only counts the orders of members. The ordering should be done by `order_date` as required.
+ - Based on the table above, we first need to fill in the ranking column, assigning NULL values to customers who are not members.
+ - The key aspect of using the `RANK()` function is to PARTITION BY `customer_id` to ensure that the ranking is calculated separately for each customer.
+ - We need to also include the membership status in the partitioning to distinguish between members and non-members, which is to ensure that the ranking only counts the orders of members.
+ - The ordering should be done by `order_date` as required.
 ```sql
 WITH new_cte AS(
 	SELECT
@@ -301,16 +304,16 @@ FROM new_cte;
 
 ### Business Insights
 ##### Customer Spending Patterns:
-Customer A is the highest spender, with a total of $85 spent, followed by Customer B with $74, and Customer C with $36. This indicates a need to focus on retaining high-spending customers through personalized offers and loyalty rewards.
+ - Customer A is the highest spender, with a total of $85 spent, followed by Customer B with $74, and Customer C with $36. This indicates a need to focus on retaining high-spending customers through personalized offers and loyalty rewards.
 ##### Most Popular Menu Item:
-Ramen is the most purchased item across all customers, indicating its popularity. Marketing efforts could leverage this by promoting ramen-centric deals or special ramen days to attract more customers.
+ - Ramen is the most purchased item across all customers, indicating its popularity. Marketing efforts could leverage this by promoting ramen-centric deals or special ramen days to attract more customers.
 ##### Impact of Membership Program:
-Members tend to continue purchasing their favorite items even after joining the loyalty program, with sushi being a preferred choice. Enhancing the membership benefits, like exclusive member-only sushi discounts, could further encourage frequent visits.
+ - Members tend to continue purchasing their favorite items even after joining the loyalty program, with sushi being a preferred choice. Enhancing the membership benefits, like exclusive member-only sushi discounts, could further encourage frequent visits.
 ##### Customer Visit Frequency:
-Customer A visited the diner on the most days, highlighting their loyalty. Analyzing the visit frequency can help in identifying peak times and days for each customer, enabling targeted marketing campaigns to increase foot traffic during off-peak times.
+ - Customer A visited the diner on the most days, highlighting their loyalty. Analyzing the visit frequency can help in identifying peak times and days for each customer, enabling targeted marketing campaigns to increase foot traffic during off-peak times.
 ### Recommendations
-**• Focus on High-Spenders:** Develop personalized marketing strategies for high-spending customers to ensure their loyalty and increase their visit frequency.
-<br> **• Leverage Popular Items:** Use popular items like ramen to attract more customers by promoting special deals and events centered around these items.
-<br> **• Enhance Membership Benefits:** Offer exclusive benefits and promotions to encourage non-members to join and existing members to remain loyal.
-<br> **• Analyze Visit Patterns:** Utilize visit frequency data to identify and target peak and off-peak times with tailored promotions.
-<br> **• Optimize Loyalty Points System:** Regularly update and promote the loyalty points system, ensuring customers are aware of how they can maximize their rewards through strategic spending and participation in promotions.
+ - **Focus on High-Spenders:** Develop personalized marketing strategies for high-spending customers to ensure their loyalty and increase their visit frequency.
+ - **Leverage Popular Items:** Use popular items like ramen to attract more customers by promoting special deals and events centered around these items.
+ - **Enhance Membership Benefits:** Offer exclusive benefits and promotions to encourage non-members to join and existing members to remain loyal.
+ - **Analyze Visit Patterns:** Utilize visit frequency data to identify and target peak and off-peak times with tailored promotions.
+ - **Optimize Loyalty Points System:** Regularly update and promote the loyalty points system, ensuring customers are aware of how they can maximize their rewards through strategic spending and participation in promotions.
