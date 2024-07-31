@@ -29,12 +29,12 @@ Danny launched Pizza Runner, a pizza delivery service combining 80s retro stylin
 ![image](https://github.com/user-attachments/assets/65477dbe-b23d-41aa-b1af-0904369e1f74)
 
 ### 📈Data Cleaning
-A quick glance at the datasets shows that there are null and NaN values in Table 2: `customer_orders` and Table 3: `runner_orders`.
-<br> There is also data standardization issue in columns `distance` and `duration` in Table 3.
-<br> Therefore, we will first clean our data through creating new tables before writing queries.
+ - A quick glance at the datasets shows that there are null and NaN values in Table 2: `customer_orders` and Table 3: `runner_orders`.
+ - There is also data standardization issue in columns `distance` and `duration` in Table 3.
+ - Therefore, we will first clean our data through creating new tables before writing queries.
 
 <br>**Table 2: customer_orders**
-<br>This statement updates the `exclusions` and `extras` columns directly in the `customer_orders` table by replacing NULL and 'null' values with empty strings.
+ - This statement updates the `exclusions` and `extras` columns directly in the `customer_orders` table by replacing NULL and 'null' values with empty strings.
 ```sql
 UPDATE pizza_runner.customer_orders
 SET exclusions = CASE
@@ -50,11 +50,11 @@ SET exclusions = CASE
 <br>![image](https://github.com/user-attachments/assets/73212555-df46-44f9-9b1a-7fcce200a7d8)
 
 <br>**Table 3: runner_orders**
-<br>There are four columns that need to be cleaned:
-<br>• `pickup_time`: replace null values with empty strings 
-<br>• `distance`: replace null values with empty strings and `TRIM` the unit `km`
-<br>• `duration`: similar to `distance`, replace null values with empty strings and `TRIM` the units `mins`, `minutes`, `minute`
-<br>• `cancellation`: replace null values with empty strings
+ - There are four columns that need to be cleaned:
+    - `pickup_time`: replace null values with empty strings
+    - `distance`: replace null values with empty strings and `TRIM` the unit `km`
+    - `duration`: similar to `distance`, replace null values with empty strings and `TRIM` the units `mins`, `minutes`, `minute`
+    - `cancellation`: replace null values with empty strings
 ```sql
 UPDATE pizza_runner.runner_orders
 SET pickup_time = CASE
@@ -84,16 +84,186 @@ SET pickup_time = CASE
 ### 📒Case Study Questions & Solutions
 ### A. Pizza Metrics
 ##### 1. How many pizzas were ordered?
-**Logic**
-<br> This answer is straightforward. We just need to `COUNT` all in `customer_orders` table
+**Logic:**
+ - This answer is straightforward. We just need to `COUNT` all in `customer_orders` table
 ```sql
 SELECT 
 	COUNT(*) AS nb_pizza_ordered
-FROM customer_orders;
+FROM pizza_runner.customer_orders;
 ```
 **Output:** 
-<br> ![image](https://github.com/user-attachments/assets/770b9dd0-5159-431d-81d0-8a145d5af72f)
+<br> ![image](https://github.com/user-attachments/assets/89c4c8d4-97a7-4613-8cbd-2a17dcb7e9f5)
+
 
 
 
 ##### 2. How many unique customer orders were made?
+**Logic:**
+ - Similar to the previous solution
+```sql
+SELECT
+	COUNT(DISTINCT order_id) AS unique_orders
+FROM pizza_runner.customer_orders;
+```
+**Output:** 
+<br> ![image](https://github.com/user-attachments/assets/e6c3e4fb-42c8-4524-80c6-93f0979dd7e6)
+
+
+
+##### 3. How many successful orders were delivered by each runner?
+**Logic:**
+ - Since there is no clear value of whether an order was successfully ordered or not, we will intepret this as `cancellation` has null value, which means the order was not cancelled
+```sql
+SELECT 
+	runner_id,
+	COUNT(*) AS nb_successful_orders
+FROM pizza_runner.runner_orders
+WHERE cancellation LIKE ''
+GROUP BY 1;
+```
+**Output:** 
+<br> ![image](https://github.com/user-attachments/assets/9ab96728-b995-4e24-96ce-f9987f82e562)
+
+
+
+##### 4. How many of each type of pizza was delivered?
+**Logic:**
+ - We know that there are two types of pizza: Meat Lovers and Vegetarian. And since this information is not included in `runner_orders` table but there is no relation between `runner_orders` table and `pizza_name` table, we will have to join these three tables together to get the names of the pizza type.
+ - Based on the solution for the previous question to find the number of pizzas successfully delivered.
+```sql
+SELECT
+	name.pizza_name,
+	COUNT(*) AS type_delivered
+FROM pizza_runner.pizza_names name 
+	JOIN pizza_runner.customer_orders co ON name.pizza_id = co.pizza_id
+	JOIN pizza_runner.runner_orders ro ON co.order_id = ro.order_id
+WHERE cancellation LIKE ''
+GROUP BY 1;
+```
+**Output:** 
+<br> ![image](https://github.com/user-attachments/assets/23c529c2-2037-4854-a8c1-9714c8790cfe)
+
+
+
+##### 5. How many Vegetarian and Meatlovers were ordered by each customer?
+**Logic:**
+ - "Vegetarian and Meatlovers" and "ordered" indicate we need to join `customer_orders` table and `pizza_names` table together
+```sql
+SELECT 
+	co.customer_id,
+	name.pizza_name,
+	COUNT(*) AS nb_ordered
+FROM pizza_runner.pizza_names name 
+	JOIN pizza_runner.customer_orders co ON name.pizza_id = co.pizza_id
+GROUP BY 1,2
+ORDER BY 1;
+```
+**Output:** 
+<br> ![image](https://github.com/user-attachments/assets/bc8eb588-7ea2-4df9-8c69-b29dec1e30f2)
+
+
+
+
+##### 6. What was the maximum number of pizzas delivered in a single order?
+**Logic:**
+ - We need a table counting the number of pizzas delivered for all orders and then select the maximum value from there
+```sql
+WITH ranking_table AS(
+	SELECT 
+		co.order_id,
+		COUNT(*) AS pizza_delivered
+	FROM pizza_runner.customer_orders co
+	JOIN pizza_runner.runner_orders ro ON co.order_id = ro.order_id
+	WHERE cancellation LIKE ''
+	GROUP BY 1
+)
+
+SELECT
+	MAX(pizza_delivered) AS max_pizza_delivered
+FROM ranking_table;
+```
+**Output:** 
+<br> ![image](https://github.com/user-attachments/assets/630c3fe7-caea-47de-bc59-942f1fb51ea4)
+<br> Therefore, the maximum number of pizzas delivered in a single order is 3 pizzas
+
+
+
+##### 7. For each customer, how many delivered pizzas had at least 1 change and how many had no changes?
+**Logic:**
+ -  Pizzas had at least 1 change means either `exclusions` or `extras` does not have empty values, and in reverse, no change means both columns have empty values. <br> And another condition is "delivered", we need to join `customer_orders` table with 'runner_orders' table
+```sql
+SELECT 
+	co.customer_id,
+	SUM(CASE WHEN exclusions NOT LIKE '' OR extras NOT LIKE '' THEN 1 ELSE 0 END) AS at_least_one_change,
+	ASUM(CASE WHEN exclusions = '' AND extras = '' THEN 1 ELSE 0 END) AS no_change
+FROM pizza_runner.customer_orders co
+JOIN pizza_runner.runner_orders ro ON co.order_id = ro.order_id
+WHERE cancellation LIKE ''
+GROUP BY 1;
+```
+**Output:** 
+<br> ![image](https://github.com/user-attachments/assets/b2e9170f-622a-44e8-b6cb-02aba9f43df1)
+
+
+
+##### 8. How many pizzas were delivered that had both exclusions and extras?
+**Logic:**
+ -  Similar to the solution above, we just need to change from `OR` to `AND`
+```sql
+SELECT 
+	SUM(CASE WHEN exclusions NOT LIKE '' AND extras NOT LIKE '' THEN 1 ELSE 0 END) AS both_exclusions_extras
+FROM pizza_runner.customer_orders co
+JOIN pizza_runner.runner_orders ro ON co.order_id = ro.order_id
+WHERE cancellation LIKE '';
+```
+**Output:** 
+<br> ![image](https://github.com/user-attachments/assets/b2e9170f-622a-44e8-b6cb-02aba9f43df1)
+
+
+
+##### 9. What was the total volume of pizzas ordered for each hour of the day?
+**Logic:**
+ -   Use `DATE_PART()` to extract each hour of the day from `order_time` column in `customer_orders` table
+```sql
+SELECT 
+	DATE_PART('hour', order_time) AS hour_of_the_day,
+	COUNT(order_id) AS pizza_volume
+FROM pizza_runner.customer_orders
+GROUP BY 1
+ORDER BY 1;
+```
+**Output:** 
+<br> ![image](https://github.com/user-attachments/assets/d661f407-4051-4db4-b331-1626124de882)
+
+
+
+##### 10. What was the volume of orders for each day of the week?
+**Logic:**
+ - Similar to the solution in the previous question, but here I used `TO_CHAR(order_time, 'Day')` to display the day of the week as a string instead of a number.
+ - A quick explanation for `TO_CHAR(order_time + INTERVAL '2 day', 'FMDay') AS day_of_the_week`:
+	 - Original DATE_PART('dow', ...) Output:
+	    - Sunday: 0
+	    - Monday: 1
+	    - Tuesday: 2
+	    - Wednesday: 3
+	    - Thursday: 4
+	    - Friday: 5
+	    - Saturday: 6
+	 - Shift by 2 Days:
+	    - Sunday + 2 days = Tuesday (2)
+	    - Monday + 2 days = Wednesday (3)
+	    - Tuesday + 2 days = Thursday (4)
+	    - Wednesday + 2 days = Friday (5)
+	    - Thursday + 2 days = Saturday (6)
+	    - Friday + 2 days = Sunday (0)
+	    - Saturday + 2 days = Monday (1)
+```sql
+SELECT 
+	TO_CHAR(order_time + INTERVAL '2 day', 'FMDay') AS day_of_the_week, -- This is to shift the starting day of the week to Monday
+	COUNT(order_id) AS order_volume
+FROM pizza_runner.customer_orders
+GROUP BY 1
+ORDER BY 1;
+```
+**Output:** 
+<br> ![image](https://github.com/user-attachments/assets/f7073c58-c6b2-4881-ab70-5d3b3ae6af75)
