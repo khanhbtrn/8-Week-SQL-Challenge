@@ -373,18 +373,49 @@ ORDER BY 1;
 
 
 
-##### 4. What was the average distance travelled for each customer?
+##### 5. What was the difference between the longest and shortest delivery times for all orders?
 **Logic:**
- - This is a quite straightforward question, assumming that the distance travelled is calculated from HQ to customer's place.
+ - Use `MAX` and `MIN`.
 ```sql
 SELECT 
-	co.customer_id,
-	AVG(ro.distance) AS avg_distance
-FROM pizza_runner.customer_orders co 
-	JOIN pizza_runner.runner_orders ro ON co.order_id = ro.order_id
-WHERE cancellation LIKE ''
-GROUP BY 1
-ORDER BY 1;
+	MAX(duration) - MIN(duration) AS difference_in_minutes
+FROM pizza_runner.runner_orders 
 ```
 **Output:** 
-<br> ![image](https://github.com/user-attachments/assets/0617a9da-c598-475a-bf65-95cbbd42316f)
+<br> ![image](https://github.com/user-attachments/assets/83d5a5bd-5480-4915-b026-fc6654408f63)
+
+
+
+##### 6. What was the average speed for each runner for each delivery and do you notice any trend for these values?
+**Logic:**
+ - To provide a fair evaluation, we shouldn't only consider the average speed of each runner for each delivery. We must also take into account the number of pizzas they had to deliver, as this could affect their delivery speed. I use `distance*60/duration` to calculate their speed.
+```sql
+	SELECT 
+		ro.runner_id,
+		ro.order_id,
+		distance,
+		duration,
+		COUNT(pizza_id) AS pizza_count,
+		distance*60/duration AS speed_in_km,
+		AVG(distance*60/duration) OVER(PARTITION BY runner_id) AS avg_speed_in_km
+	FROM pizza_runner.customer_orders co 
+		JOIN pizza_runner.runner_orders ro ON co.order_id = ro.order_id
+	WHERE cancellation LIKE ''
+	GROUP BY 1,2,3,4
+	ORDER BY 1,6 DESC,7 DESC;
+```
+**Output:** 
+<br> ![image](https://github.com/user-attachments/assets/afe30b6a-de1a-4653-845f-6679bd383b0c)
+<br> From the output, we can draw the following insights:
+ - The runner with the highest *average* speed per delivery was Runner 2, with an average speed of approximately 63 km/h. The slowest runner was Runner 3, with an *average* speed of 40 km/h.
+ - The fastest delivery speed was achieved by Runner 2 for order 8, with a speed of roughly 94 km/h. The slowest delivery speed was by Runner 3 for order 4, with a speed of 35 km/h.
+
+
+
+ - ##### 7. What is the successful delivery percentage for each runner?
+**Logic:**
+
+```sql
+
+```
+**Output:** 
