@@ -103,7 +103,6 @@ FROM pizza_runner.customer_orders;
 
 
 
-
 ##### 2. How many unique customer orders were made?
 **Logic:**
  - Similar to the previous solution
@@ -412,9 +411,117 @@ FROM pizza_runner.runner_orders
 
 
 
- - ##### 7. What is the successful delivery percentage for each runner?
+##### 7. What is the successful delivery percentage for each runner?
 **Logic:**
+ - Use conditional aggregation `SUM(CASE WHEN...)` to calculate the number of successful delivery.
+```sql
+SELECT 
+	runner_id,
+	ROUND(100 * SUM(CASE WHEN cancellation LIKE '' THEN 1 ELSE 0 END)/COUNT(*),0) AS percentage
+FROM pizza_runner.runner_orders
+GROUP BY 1
+ORDER BY 1;
+```
+**Output:** 
+<br>![image](https://github.com/user-attachments/assets/723c9fcd-27a9-4e6b-b14c-9d2bec350f76)
 
+### C. Ingredient Optimisation
+##### 1. What are the standard ingredients for each pizza?
+**Logic:**
+ - Use Regex `REGEXP_SPLIT_TO_TABLE(toppings, '[,\s]+')::INTEGER` to extract topping_id and `STRING_AGG(pt.topping_name, ', ')` to join the ingredients together.
+```sql
+WITH toppings_table AS(
+	SELECT
+		pizza_id, 
+		REGEXP_SPLIT_TO_TABLE(toppings, '[,\s]+')::INTEGER AS topping_id
+	FROM pizza_runner.pizza_recipes
+)
+SELECT
+	pn.pizza_name,
+	STRING_AGG(pt.topping_name, ', ') AS standard_ingredients
+FROM pizza_runner.pizza_names pn
+	JOIN toppings_table tt ON pn.pizza_id = tt.pizza_id 
+	JOIN pizza_runner.pizza_toppings pt ON tt.topping_id = pt.topping_id 
+GROUP BY 1;
+```
+**Output:** 
+<br> ![image](https://github.com/user-attachments/assets/0385e1c4-f1e6-431a-b405-153229c3ad2c)
+
+
+
+##### 2. What was the most commonly added extra?
+**Logic:**
+ - First, we need to create a table that lists orders with their extras, where each extra is separated into different rows.
+ - Next, we count the occurrences of each extra, order descending and limit our result by 1. 
+```sql
+WITH order_with_extras AS(
+	SELECT
+		order_id,
+		CAST(UNNEST(string_to_array(extras, ', ')) AS INTEGER)  AS separated_extras
+	FROM pizza_runner.customer_orders
+	GROUP BY 1, extras
+),
+toppings_table AS(
+	SELECT
+		pizza_id, 
+		REGEXP_SPLIT_TO_TABLE(toppings, '[,\s]+')::INTEGER AS topping_id
+	FROM pizza_runner.pizza_recipes
+)
+SELECT 
+	tt.topping_id,
+	COUNT(separated_extras) AS extras_count,
+	pt.topping_name
+FROM order_with_extras owe 
+	JOIN toppings_table tt ON owe.separated_extras = tt.topping_id
+	JOIN pizza_runner.pizza_toppings pt ON tt.topping_id = pt.topping_id 
+GROUP BY 1, 3
+ORDER BY 2 DESC
+LIMIT 1;
+```
+**Output:** 
+<br>![image](https://github.com/user-attachments/assets/600cddb1-d61a-42e6-8920-3c6295162a87)
+
+
+
+##### 3. What was the most common exclusion?
+**Logic:**
+ - Similar to the logic of the previous question, we just need to change extras with exclusions
+```sql
+WITH order_with_exclusions AS(
+	SELECT
+		order_id,
+		CAST(UNNEST(string_to_array(exclusions, ', ')) AS INTEGER)  AS separated_exclusions
+	FROM pizza_runner.customer_orders
+	GROUP BY 1, exclusions
+),
+toppings_table AS(
+	SELECT
+		pizza_id, 
+		REGEXP_SPLIT_TO_TABLE(toppings, '[,\s]+')::INTEGER AS topping_id
+	FROM pizza_runner.pizza_recipes
+)
+SELECT 
+	tt.topping_id,
+	COUNT(separated_exclusions) AS exclusions_count,
+	pt.topping_name
+FROM order_with_exclusions owe 
+	JOIN toppings_table tt ON owe.separated_exclusions = tt.topping_id
+	JOIN pizza_runner.pizza_toppings pt ON tt.topping_id = pt.topping_id 
+GROUP BY 1, 3
+ORDER BY 2 DESC
+LIMIT 1;
+```
+**Output:** 
+<br> ![image](https://github.com/user-attachments/assets/33a4a137-df3f-4bd9-8fcb-1364b30d4924)
+
+
+
+##### 4. Generate an order item for each record in the customers_orders table in the format of one of the following:
+ - Meat Lovers
+ - Meat Lovers - Exclude Beef
+ - Meat Lovers - Extra Bacon
+ - Meat Lovers - Exclude Cheese, Bacon - Extra Mushroom, Peppers
+**Logic:**
 ```sql
 
 ```
