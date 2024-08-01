@@ -4,7 +4,7 @@ This repository contains my solutions to the 8-Week-SQL-Challenge from [Data Wit
 
 ### :pushpin:Table of Contents
 [Week 1: Danny's Diner](https://8weeksqlchallenge.com/case-study-1/) / [Solution](https://github.com/khanhbtrn/8-Week-SQL-Challenge/blob/main/Week%201:%20Danny's%20Diner.md)
-<br> [Week 2: Pizza Runner](https://8weeksqlchallenge.com/case-study-2/) / Solution
+<br> [Week 2: Pizza Runner](https://8weeksqlchallenge.com/case-study-2/) / [Solution](https://github.com/khanhbtrn/8-Week-SQL-Challenge/blob/main/Week%202%3A%20Pizza%20Runner.md)
 <br> [Week 3: Foodie-Fi](https://8weeksqlchallenge.com/case-study-3/) / Solution
 <br> [Week 4: Data Bank](https://8weeksqlchallenge.com/case-study-4/) / Solution
 <br> [Week 5: Technology Sales](https://8weeksqlchallenge.com/case-study-5/) / Solution
