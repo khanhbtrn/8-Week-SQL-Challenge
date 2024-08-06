@@ -532,38 +532,62 @@ LIMIT 1;
 **Logic:**
  - We have to be careful that these orders were delivered successfully, or `WHERE cancellation LIKE ''`
 ```sql
-WITH price_cte AS(SELECT
-	co.order_id,
-	co.pizza_id,
-	pn.pizza_name,
-	CASE
-		WHEN pizza_name = 'Meatlovers' THEN 12
-		ELSE 10
-	END AS price
-FROM 
-	pizza_runner.customer_orders co 
-		LEFT JOIN pizza_runner.pizza_names pn ON co.pizza_id = pn.pizza_id
-		JOIN pizza_runner.runner_orders ro ON co.order_id = ro.order_id 
-WHERE cancellation LIKE ''
-GROUP BY 1,2,3)
+WITH price_cte AS(
+	SELECT
+		co.order_id,
+		co.pizza_id,
+		pn.pizza_name,
+		CASE
+			WHEN pizza_name = 'Meatlovers' THEN 12
+			ELSE 10
+		END AS price
+	FROM 
+		pizza_runner.customer_orders co 
+			LEFT JOIN pizza_runner.pizza_names pn ON co.pizza_id = pn.pizza_id
+			JOIN pizza_runner.runner_orders ro ON co.order_id = ro.order_id 
+	WHERE cancellation LIKE ''
+)
 SELECT 
 	SUM(price) AS total_sales
 FROM price_cte
 ```
 **Output:** 
-<br> ![image](https://github.com/user-attachments/assets/5f683dcb-35f2-4105-96f6-1900cbd92f54)
+<br> ![image](https://github.com/user-attachments/assets/b94c7ce5-6927-4606-8d5e-7fdd55095991)
 
 
 
 ##### 2. What if there was an additional $1 charge for any pizza extras?
  - Add cheese is $1 extra
 **Logic:**
- - 
+ - We need to count the number of extra multiplied by $1 and then calculate the price accordingly
 ```sql
+WITH price_cte AS
+	(
+	SELECT
+		co.order_id,
+		co.pizza_id,
+	    CASE
+	        WHEN extras IS NULL THEN 0
+	        ELSE array_length(string_to_array(extras, ','), 1*1)
+	    END AS extra_count,
+	    pn.pizza_name,
+	    CASE
+				WHEN pizza_name = 'Meatlovers' THEN 12
+				ELSE 10
+			END AS price
+	FROM 
+		pizza_runner.customer_orders co 
+			LEFT JOIN pizza_runner.pizza_names pn ON co.pizza_id = pn.pizza_id
+			JOIN pizza_runner.runner_orders ro ON co.order_id = ro.order_id 
+	WHERE cancellation LIKE ''
+	)
 
+SELECT 
+	SUM(price) + SUM(extra_count) AS total_sales
+FROM price_cte 
 ```
 **Output:** 
-<br> 
+<br> ![image](https://github.com/user-attachments/assets/75fe365a-a2c0-4ecb-8e7c-8c2ba2c09485)
 
 
 
