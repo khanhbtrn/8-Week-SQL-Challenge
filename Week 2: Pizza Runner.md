@@ -514,19 +514,6 @@ LIMIT 1;
 **Output:** 
 <br> ![image](https://github.com/user-attachments/assets/33a4a137-df3f-4bd9-8fcb-1364b30d4924)
 
-
-
-##### 4. Generate an order item for each record in the customers_orders table in the format of one of the following:
- - Meat Lovers
- - Meat Lovers - Exclude Beef
- - Meat Lovers - Extra Bacon
- - Meat Lovers - Exclude Cheese, Bacon - Extra Mushroom, Peppers
-**Logic:**
-```sql
-
-```
-**Output:** 
-
 ### D. Pricing and Ratings
 ##### 1. If a Meat Lovers pizza costs $12 and Vegetarian costs $10 and there were no charges for changes - how much money has Pizza Runner made so far if there are no delivery fees?
 **Logic:**
@@ -590,56 +577,13 @@ FROM price_cte
 <br> ![image](https://github.com/user-attachments/assets/75fe365a-a2c0-4ecb-8e7c-8c2ba2c09485)
 
 
-
-##### 3. The Pizza Runner team now wants to add an additional ratings system that allows customers to rate their runner, how would you design an additional table for this new dataset - generate a schema for this new table and insert your own data for ratings for each successful customer order between 1 to 5.
-**Logic:**
- - 
-```sql
-
-```
-**Output:** 
-<br> 
-
-
-
-##### 4. Using your newly generated table - can you join all of the information together to form a table which has the following information for successful deliveries?
- - `customer_id`
- - `order_id`
- - `runner_id`
- - `rating`
- - `order_time`
- - `pickup_time`
- - Time between order and pickup
- - Delivery duration
- - Average speed
- - Total number of pizzas
-**Logic:**
- - 
-```sql
-
-```
-**Output:** 
-<br> 
-
-
-
-##### 5. If a Meat Lovers pizza was $12 and Vegetarian $10 fixed prices with no cost for extras and each runner is paid $0.30 per kilometre traveled - how much money does Pizza Runner have left over after these deliveries?
-**Logic:**
- - 
-```sql
-
-```
-**Output:** 
-<br> 
-
-
-
-### E. Bonus Questions
-##### If Danny wants to expand his range of pizzas - how would this impact the existing data design? Write an INSERT statement to demonstrate what would happen if a new Supreme pizza with all the toppings was added to the Pizza Runner menu?
-**Logic:**
- - 
-```sql
-
-```
-**Output:** 
-<br> 
+### Business Insights 
+ - Meat Lovers pizzas are more popular than Vegetarian pizzas based on the data.
+ - Preparing two pizzas in a single order is the most efficient, taking only 9 minutes per pizza on average. This demonstrates a higher efficiency rate when handling orders with two pizzas.
+- Runner 1 has the highest successful delivery rate and is also one of the fastest runners. This suggests that Runner 1 is both reliable and efficient in delivering orders.
+- The most popular times for pizza orders are between 11:00-13:00 (lunch) and 21:00-23:00 (late-night snacks). Additionally, Friday and Monday are the busiest days for orders.
+### Recommendations
+ - **Ingredient Management:** Prioritize stocking ingredients for Meat Lovers pizzas to ensure consistent supply and reduce waste. Consider adjusting the inventory levels of vegetarian ingredients accordingly. Explore opportunities to introduce new meat-based pizza varieties to cater to customer preferences. 
+ - **Kitchen Performance:** Consider offering promotions that encourage customers to order two pizzas at a time, leveraging the efficiency in preparation to handle increased demand without overburdening the kitchen.
+ - **Runner Performance:** Offer a performance-based bonus to Runner 1 to reward their reliability and speed. This could serve as motivation for other runners to improve their performance as well.
+ - **Peak Hours:** Develop targeted marketing campaigns for these peak times, such as lunch deals for the midday crowd and late-night specials. Consider offering discounts or bundle deals on Fridays and Mondays to capitalize on the high order volume during these days.
