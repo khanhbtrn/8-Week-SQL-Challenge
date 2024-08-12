@@ -192,3 +192,49 @@ GROUP BY 1;
 ```
 **Output:** 
 <br>![image](https://github.com/user-attachments/assets/94a79ea8-c108-4dca-a6ac-9a8f447d82ef)
+
+
+
+##### 8. How many customers have upgraded to an annual plan in 2020?
+**Logic:**
+ - We need to satisfy two conditions: `plan_id = 3` and `start_date BETWEEN '2020-01-01' AND '2020-12-31'`.
+```sql
+SELECT 
+	COUNT(customer_id) AS nb_annual_customers
+FROM foodie_fi.subscriptions
+WHERE
+	plan_id = 3
+	AND start_date BETWEEN '2020-01-01' AND '2020-12-31';
+```
+**Output:** 
+<br>![image](https://github.com/user-attachments/assets/b05d6dac-72ac-48c7-95b5-049a178b3a27)
+
+
+
+##### 9. How many days on average does it take for a customer to an annual plan from the day they join Foodie-Fi?
+**Logic:**
+ - Create two CTEs to extract customers with pro annual subscriptions `annual_start_date` and another CTE to extract their `trial_start_date`.
+ - Then we just need to calculate using `AVG()`.
+```sql
+WITH annual_date_cte AS(
+	SELECT
+		customer_id,
+		start_date AS annual_start_date
+	FROM foodie_fi.subscriptions
+	WHERE plan_id = 3
+	),
+	
+trial_date_cte AS(
+	SELECT
+		an.customer_id,
+		start_date AS trial_start_date
+	FROM foodie_fi.subscriptions s JOIN annual_date_cte an ON s.customer_id = an.customer_id
+	WHERE plan_id = 0
+	)
+SELECT
+	ROUND(AVG(annual_start_date - trial_start_date)) AS avg_switch_plan
+FROM annual_date_cte an JOIN trial_date_cte trial ON an.customer_id = trial.customer_id;
+```
+**Output:** 
+<br>![image](https://github.com/user-attachments/assets/2ceefed0-66cd-4d2f-ab6d-b37f3d583626)
+
