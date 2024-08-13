@@ -238,3 +238,127 @@ FROM annual_date_cte an JOIN trial_date_cte trial ON an.customer_id = trial.cust
 **Output:** 
 <br>![image](https://github.com/user-attachments/assets/2ceefed0-66cd-4d2f-ab6d-b37f3d583626)
 
+
+
+##### 10. Can you further breakdown this average value into 30 day periods (i.e. 0-30 days, 31-60 days etc)
+**Logic:**
+ - Use `WIDTH_BUCKET()` to break down 30-day periods.
+```sql
+WITH annual_date_cte AS(
+	SELECT
+		customer_id,
+		start_date AS annual_start_date
+	FROM foodie_fi.subscriptions
+	WHERE plan_id = 3
+	),
+	
+trial_date_cte AS(
+	SELECT
+		an.customer_id,
+		start_date AS trial_start_date,
+		MIN(start_date) + INTERVAL '30 Days' AS period_30days
+	FROM foodie_fi.subscriptions s JOIN annual_date_cte an ON s.customer_id = an.customer_id
+	WHERE plan_id = 0
+	GROUP BY 1,2
+	),
+period_30days AS(
+	SELECT
+		WIDTH_BUCKET(an.annual_start_date - trial.trial_start_date, 0, 365, 12) AS avg_days_to_upgrade
+		FROM annual_date_cte an JOIN trial_date_cte trial ON an.customer_id = trial.customer_id
+	)
+SELECT
+	avg_days_to_upgrade AS period_30days,
+	COUNT(*) AS num_of_customers
+FROM period_30days
+GROUP BY 1
+ORDER BY 1;
+```
+**Output:** 
+<br>![image](https://github.com/user-attachments/assets/90851f5a-7073-419c-b538-05ed4bd86eb4)
+
+
+
+##### 11. How many customers downgraded from a pro monthly to a basic monthly plan in 2020?
+**Logic:**
+ - Create a CTE to find customers with a pro monthly subscription in the year 2020.
+ - We then check whether these customers have a basic monthly `start_date` value or not and count.
+```sql
+WITH pro_monthly_cte AS(
+	SELECT
+		customer_id,
+		start_date AS pro_monthly_date
+	FROM foodie_fi.subscriptions
+	WHERE plan_id = 2
+		AND start_date BETWEEN '2020-01-01' AND '2020-12-31'
+	)
+
+SELECT
+	COUNT(*) AS downgrade_nb
+FROM( 
+	SELECT
+		pm.customer_id,
+		pro_monthly_date,
+		s.start_date AS basic_monthly_date
+	FROM foodie_fi.subscriptions s JOIN pro_monthly_cte pm ON s.customer_id = pm.customer_id
+	WHERE plan_id = 1
+		AND s.start_date >= pro_monthly_date
+		AND s.start_date BETWEEN '2020-01-01' AND '2020-12-31'
+	);
+```
+**Output:** 
+<br>![image](https://github.com/user-attachments/assets/2d018f2b-9d7c-4761-9689-86f7e3321181)
+ - There was no customer downgraded from a pro monthly to a basic monthly plan in 2020.
+
+### C. Challenge Payment Question
+The Foodie-Fi team wants you to create a new payments table for the year 2020 that includes amounts paid by each customer in the subscriptions table with the following requirements:
+ - monthly payments always occur on the same day of month as the original start_date of any monthly paid plan
+ - upgrades from basic to monthly or pro plans are reduced by the current paid amount in that month and start immediately
+ - upgrades from pro monthly to pro annual are paid at the end of the current billing period and also starts at the end of the month period
+ - once a customer churns they will no longer make payments
+<br> Example outputs for this table might look like the following:
+<br>![image](https://github.com/user-attachments/assets/7627bffa-6208-4de4-9bf3-d1778dd68084)
+##### Create table
+```sql
+CREATE TABLE foodie_fi.payments (
+	customer_id INT,
+	plan_id INT,
+	plan_name VARCHAR(50),
+	payment_date DATE,
+	amount INT,
+	payment_order INT
+	);
+```
+##### Handle monthly payments
+```sql
+INSERT INTO foodie_fi.payments (customer_id, plan_id, plan_name, payment_date, amount, payment_order)
+WITH RECURSIVE payment_schedule AS (
+    SELECT
+        s.customer_id,
+        s.plan_id,
+        p.plan_name,
+        s.start_date::DATE AS payment_date,
+        p.price AS amount,
+        1 AS payment_order
+    FROM foodie_fi.subscriptions s JOIN foodie_fi.plans p ON s.plan_id = p.plan_id
+    WHERE p.plan_name IN ('basic monthly', 'pro monthly')
+        AND s.start_date <= '2020-12-31'
+        
+    UNION ALL
+    
+    SELECT
+        ps.customer_id,
+        ps.plan_id,
+        ps.plan_name,
+        (ps.payment_date + INTERVAL '1 month')::DATE,
+        ps.amount,
+        ps.payment_order + 1
+    FROM
+        payment_schedule ps
+    WHERE
+        (ps.payment_date + INTERVAL '1 month')::DATE <= '2020-12-31'
+)
+SELECT * FROM payment_schedule;
+```
+**Explanation**
+ - Start with the initial payment on the subscription's `start_date` and then recursively adds a payment each month by incrementing the `payment_date` by one month.
+ - The recursion stops once the payment date exceeds December 31, 2020. This ensures that all monthly payments for `basic monthly` and `pro monthly` plans within 2020 are generated and inserted into the payments table.
