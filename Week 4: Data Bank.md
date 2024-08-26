@@ -73,7 +73,7 @@ GROUP BY 1;
 
 ##### 4. How many days on average are customers reallocated to a different node?
 **Logic:**
- - Use `GROUP BY region_id` while `COUNT(customer_id)`
+ - 
 ```sql
 
 ```
