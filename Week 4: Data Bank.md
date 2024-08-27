@@ -73,9 +73,41 @@ GROUP BY 1;
 
 ##### 4. How many days on average are customers reallocated to a different node?
 **Logic:**
- - 
+ - We need to create two CTEs: the first one to calculate the number of days in node and the second one to calculate the total days in node for each customer.
+ - Finally, we will calculate the `AVG().` 
+```sql
+WITH node_change_duration AS(
+	SELECT
+		customer_id,
+		node_id,
+		end_date - start_date AS node_duration
+	FROM data_bank.customer_nodes
+	WHERE end_date != '9999-12-31'
+	GROUP BY 1, 2, start_date, end_date
+	),
+total_node_days AS(
+	SELECT 
+		customer_id,
+		node_id,
+		SUM(node_duration) AS total_days
+	FROM node_change_duration
+	GROUP BY 1, 2
+	)
+
+SELECT
+	ROUND(AVG(total_days)) AS avg_node_reallocation_days
+FROM total_node_days;
+```
+**Output:** 
+<br> ![image](https://github.com/user-attachments/assets/06fa9c11-0e80-46f6-9052-c60e1b3c0a35)
+
+
+
+##### 5. What is the median, 80th and 95th percentile for this same reallocation days metric for each region?
+**Logic:**
+ - Use `GROUP BY region_id` while `COUNT(customer_id)`
 ```sql
 
 ```
 **Output:** 
-<br> ![image](https://github.com/user-attachments/assets/4a223295-c648-4c91-b49a-248893679474)
+<br> 
