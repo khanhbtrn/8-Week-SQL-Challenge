@@ -2,6 +2,8 @@
 
 This repository contains my solutions to the 8-Week-SQL-Challenge from [Data With Danny](https://8weeksqlchallenge.com/). This challenge showcases my SQL skills by working through real-world problems. Each week, a new challenge is introduced, focusing on a different dataset and business problem.
 
+### ⚙️Tools
+ - PostgreSQL, DBeaver
 ### :pushpin:Table of Contents
 [Week 1: Danny's Diner](https://8weeksqlchallenge.com/case-study-1/) / [Solution](https://github.com/khanhbtrn/8-Week-SQL-Challenge/blob/main/Week%201:%20Danny's%20Diner.md)
 <br> [Week 2: Pizza Runner](https://8weeksqlchallenge.com/case-study-2/) / [Solution](https://github.com/khanhbtrn/8-Week-SQL-Challenge/blob/main/Week%202%3A%20Pizza%20Runner.md)
