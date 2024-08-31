@@ -103,11 +103,52 @@ FROM total_node_days;
 
 
 
-##### 5. What is the median, 80th and 95th percentile for this same reallocation days metric for each region?
+### B. Customer Transactions
+##### 1. What is the unique count and total amount for each transaction type?
 **Logic:**
- - Use `GROUP BY region_id` while `COUNT(customer_id)`
+ - Use `COUNT(customer_id)` to calculate unique count and `SUM(txn_amount)` to calculate the total amount then `GROUP BY` transaction type `txn_type`.
+```sql
+SELECT
+	txn_type,
+	COUNT(customer_id) AS unique_count,
+	SUM(txn_amount) AS total_amount
+FROM data_bank.customer_transactions
+GROUP BY 1;
+```
+**Output:** 
+<br> ![image](https://github.com/user-attachments/assets/b5be31b4-7642-4b63-9501-d58857884f6c)
+
+
+
+##### 2. What is the average total historical deposit counts and amounts for all customers?
+**Logic:**
+ - Create a CTE to calculate the number of transactions per customer and their average amount.
+ - Then calculate the average values across customers. 
+```sql
+WITH deposit_cte AS(
+	SELECT 
+		customer_id,
+		COUNT(customer_id) AS transaction_count,
+		AVG(txn_amount) AS avg_deposit_amount
+	FROM data_bank.customer_transactions
+	WHERE txn_type = 'deposit'
+	GROUP BY 1)
+
+SELECT
+	ROUND(AVG(transaction_count)) AS avg_deposit_count,
+	ROUND(AVG(avg_deposit_amount)) AS avg_deposit_amount
+FROM deposit_cte;
+```
+**Output:** 
+<br> ![image](https://github.com/user-attachments/assets/4f051370-d27a-4f20-892f-a22c727fc5f6)
+
+
+
+##### 3. For each month - how many Data Bank customers make more than 1 deposit and either 1 purchase or 1 withdrawal in a single month?
+**Logic:**
+ - Use `COUNT(customer_id)` to calculate unique count and `SUM(txn_amount)` to calculate the total amount then `GROUP BY` transaction type `txn_type`.
 ```sql
 
 ```
 **Output:** 
-<br> 
+<br> ![image](https://github.com/user-attachments/assets/b5be31b4-7642-4b63-9501-d58857884f6c)
