@@ -146,9 +146,37 @@ FROM deposit_cte;
 
 ##### 3. For each month - how many Data Bank customers make more than 1 deposit and either 1 purchase or 1 withdrawal in a single month?
 **Logic:**
- - Use `COUNT(customer_id)` to calculate unique count and `SUM(txn_amount)` to calculate the total amount then `GROUP BY` transaction type `txn_type`.
+ - Create a CTE to calculate deposit count, purchase count, and withdraw count for each customer in each month.
+ - `WHERE deposit_count >= 1 AND (purchase_count >= 1 OR withdrawal_count >= 1)` to satisfy the conditions required.
+```sql
+WITH monthly_transactions AS(
+	SELECT 
+		customer_id,
+		TO_CHAR(txn_date, 'Month') AS mth,
+		SUM(CASE WHEN txn_type = 'deposit' THEN 1 ELSE 0 END) AS deposit_count,
+	    SUM(CASE WHEN txn_type = 'purchase' THEN 1 ELSE 0 END) AS purchase_count,
+	    SUM(CASE WHEN txn_type = 'withdrawal' THEN 1 ELSE 0 END) AS withdrawal_count
+	FROM data_bank.customer_transactions
+	GROUP BY 1, 2)
+
+SELECT 
+	mth,
+	COUNT(DISTINCT customer_id) AS nb_of_customers
+FROM monthly_transactions
+WHERE deposit_count >= 1 AND (purchase_count >= 1 OR withdrawal_count >= 1)
+GROUP BY 1
+ORDER BY 1;
+```
+**Output:** 
+<br> ![image](https://github.com/user-attachments/assets/6449c940-14ce-4fc1-9010-daeb8361ac9c)
+
+
+
+##### 4. What is the closing balance for each customer at the end of the month?
+**Logic:**
+
 ```sql
 
 ```
 **Output:** 
-<br> ![image](https://github.com/user-attachments/assets/b5be31b4-7642-4b63-9501-d58857884f6c)
+<br> 
