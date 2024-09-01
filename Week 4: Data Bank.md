@@ -174,9 +174,107 @@ ORDER BY 1;
 
 ##### 4. What is the closing balance for each customer at the end of the month?
 **Logic:**
-
+- The goal is to calculate the closing balance for each customer at the end of each month based on their transaction history.
+- We create `monthly_transactions` CTE to calculate the net transaction amount for each customer for every month and `running_balance` CTE to compute the cumulative balance for each customer up to the end of each month.
 ```sql
+WITH monthly_transactions AS (
+    SELECT 
+        customer_id,
+        DATE_TRUNC('month', txn_date) AS month,
+        SUM(CASE 
+            WHEN txn_type = 'deposit' THEN txn_amount 
+            ELSE -txn_amount 
+        END) AS monthly_net_amount
+    FROM data_bank.customer_transactions
+    GROUP BY 1, 2
+),
+running_balance AS (
+    SELECT
+        customer_id,
+        month,
+        SUM(monthly_net_amount) OVER (
+            PARTITION BY customer_id 
+            ORDER BY month
+        ) AS closing_balance
+    FROM monthly_transactions
+)
+SELECT
+    customer_id,
+    month,
+    closing_balance
+FROM running_balance
+ORDER BY 1, 2;
+```
+**Output Preview:** 
+<br> ![image](https://github.com/user-attachments/assets/5532c722-6f03-4413-afc6-40ea421b7162)
 
+
+
+##### 5. What is the percentage of customers who increase their closing balance by more than 5%?
+**Logic:**
+- Our goal is to calculate the closing balance for each customer at the end of each month and then determine how many customers have increased their balance by more than 5% from the previous month.
+- Similar to the previous question, we will first calculate the monthly closing balance for each customer.
+- Next, for each customer, we will calculate the percentage change in the closing balance from one month to the next.
+- Next, we will filter the results to find customers whose closing balance increased by more than 5% from the previous month.
+- Lastly, we will calculate the percentage of customerrs who had an increase of more than 5%.
+```sql
+WITH monthly_transactions AS(
+	SELECT 
+		customer_id,
+		DATE_TRUNC('month', txn_date) AS month,
+		SUM(CASE 
+			WHEN txn_type = 'deposit' THEN txn_amount
+			ELSE -txn_amount
+		END
+		) AS monthly_net_amount
+	FROM data_bank.customer_transactions 
+	GROUP BY 1, 2
+),
+running_balance AS(
+	SELECT 
+		customer_id, 
+		month,
+		SUM(monthly_net_amount) OVER(PARTITION BY customer_id ORDER BY month) AS closing_balance
+	FROM monthly_transactions
+),
+balance_change AS(
+	SELECT 
+		customer_id, 
+		month,
+		closing_balance,
+		LAG(closing_balance) OVER (PARTITION BY customer_id ORDER BY month) AS previous_closing_balance
+    FROM running_balance
+),
+percentage_change AS (
+    SELECT
+        customer_id,
+        month,
+        closing_balance,
+        previous_closing_balance,
+        CASE 
+            WHEN previous_closing_balance IS NOT NULL AND previous_closing_balance > 0 THEN 
+                (closing_balance - previous_closing_balance) / previous_closing_balance * 100
+            ELSE 0
+        END AS balance_change_percentage
+    FROM balance_change
+)
+SELECT
+    ROUND((SUM(CASE WHEN balance_change_percentage > 5 THEN 1 ELSE 0 END) * 100.0) / COUNT(DISTINCT customer_id), 2) AS percentage_customers_increased_by_5_percent
+FROM percentage_change;
 ```
 **Output:** 
-<br> 
+<br> ![image](https://github.com/user-attachments/assets/98810168-cf56-48fe-98c2-26ce1c0df7f6)
+
+
+
+### C. Data Allocation Challenge
+- To test out a few different hypotheses - the Data Bank team wants to run an experiment where different groups of customers would be allocated data using 3 different options:
+	- Option 1: data is allocated based off the amount of money at the end of the previous month
+ 	- Option 2: data is allocated on the average amount of money kept in the account in the previous 30 days
+	- Option 3: data is updated real-time
+- For this multi-part challenge question - you have been requested to generate the following data elements to help the Data Bank team estimate how much data will need to be provisioned for each option:
+	- running customer balance column that includes the impact each transaction
+	- customer balance at the end of each month
+	- minimum, average and maximum values of the running balance for each customer
+- Using all of the data available - how much data would have been required for each option on a monthly basis?
+**Answer:** 
